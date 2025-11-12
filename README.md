@@ -18,10 +18,10 @@ uv sync
 
 # Запуск сервера
 ```bash
-fastapi dev src/main.py
+uv un fastapi dev src/main.py
 ```
 
 # Запуск тестов
 ```bash
-pytest -v
+uv run pytest -v
 ```
