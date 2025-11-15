@@ -20,7 +20,7 @@ class PublicUser(SQLModel):
 
 
 class PrivateUser(PublicUser):
-    pasword: str
+    password: str
 
 
 class TableUser(PublicUser, table=True):

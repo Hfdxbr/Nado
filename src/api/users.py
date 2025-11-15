@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response, Request
+from fastapi.responses import RedirectResponse
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
 
@@ -7,7 +8,7 @@ import src.utils.users as uu
 from src.api import SessionDep
 from src.database import Generation, PrivateUser, TableGeneration, TableUser
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 
 class DisplayUser(SQLModel):
@@ -35,9 +36,27 @@ def create_user(user: PrivateUser, session: SessionDep):
     return {"success": True, "user_id": table_user.id}
 
 
+@router.post("/login")
+def login_user(user: PrivateUser, session: SessionDep, response: Response):
+    table_user = uu.get_by_email(user.email, session)
+    if table_user is None:
+        raise HTTPException(404)
+    if table_user.password_hash != uu.make_hash(user):
+        raise HTTPException(401)
+    response.set_cookie("user-id", str(table_user.id))
+
+
+@router.get("/user")
+def get_user(request: Request) -> TableUser:
+    id = request.cookies.get("user-id")
+    if id is None:
+        raise HTTPException(401)
+    return RedirectResponse(f"/users/{id}")
+
+
 @router.get("/users/{id}")
-def get_user(id: int, session: SessionDep) -> TableUser:
-    user = uu.get_user(id, session)
+def get_user_by_id(id: int, session: SessionDep) -> TableUser:
+    user = uu.get_by_id(id, session)
     if not user:
         raise HTTPException(status_code=404)
     return user

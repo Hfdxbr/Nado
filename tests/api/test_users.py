@@ -18,7 +18,7 @@ async def test_list_users():
 @pytest.mark.asyncio
 async def test_create_user():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
-        user = PrivateUser(email="user@example.ru", pasword="1234")
+        user = PrivateUser(email="user@example.ru", password="1234")
         response = await c.post("/users", json=user.model_dump())
         assert response.status_code == 400
 

@@ -4,7 +4,7 @@ from src.api import SessionDep
 from src.database import TableTemplate, Template
 import src.utils.templates as ut
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 
 @router.get("/templates")
@@ -24,3 +24,10 @@ def get_template(id: int, session: SessionDep) -> Template:
     if not template:
         raise HTTPException(status_code=404)
     return template
+
+@router.delete("/templates/{id}")
+def delete_template(id: int, session: SessionDep):
+    success = ut.delete_template(id, session)
+    if not success:
+        raise HTTPException(status_code=404)
+    return {"success": True}
